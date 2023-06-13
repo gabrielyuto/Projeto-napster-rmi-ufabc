@@ -1,7 +1,7 @@
 package org.example.src.db;
 
-import org.example.src.model.entity.Cliente;
-import org.example.src.model.entity.NewCliente;
+import org.example.src.entity.Cliente;
+import org.example.src.entity.NewCliente;
 
 import java.sql.*;
 
@@ -25,24 +25,11 @@ public class Conexao {
         return connection;
     }
 
-    public void createTable(Connection connection, String table_name) {
-        Statement statement;
-
-        try {
-            String query = "create table " + table_name + "(id SERIAL, name VARCHAR(200), file VARCHAR(200));";
-            statement = connection.createStatement();
-            statement.executeUpdate(query);
-            System.out.println("Table created");
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-    }
-
     public void insertNewClient(Connection connection, NewCliente newCliente) {
         Statement statement;
 
         try {
-            String query = String.format("insert into files(name, file) values('%s','%s');", newCliente.getName(), newCliente.getFiles());
+            String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", newCliente.getName(), newCliente.getIp(), newCliente.getPort(), newCliente.getFiles());
             statement = connection.createStatement();
             statement.executeUpdate(query);
             System.out.println("Novo usuario cadastrando com seus arquivos");
@@ -51,11 +38,11 @@ public class Conexao {
         }
     }
 
-    public Cliente findClientFiles(Connection connection, String file) {
+    public NewCliente findClientFiles(Connection connection, String file) {
         PreparedStatement preparedStatement;
         ResultSet resultSet;
 
-        Cliente cliente = new Cliente();
+        NewCliente cliente = new NewCliente();
 
         try {
             preparedStatement = connection.prepareStatement("select * from files where file=?");
@@ -64,6 +51,9 @@ public class Conexao {
 
             if (resultSet.next()) {
                 cliente.setName(resultSet.getString("name"));
+                cliente.setIp(resultSet.getString("ip"));
+                cliente.setPort(resultSet.getInt("port"));
+                cliente.setFiles(resultSet.getString("file"));
             }
         } catch(SQLException ex){
             return null;
