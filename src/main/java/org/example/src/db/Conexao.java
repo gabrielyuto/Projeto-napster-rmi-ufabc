@@ -25,7 +25,7 @@ public class Conexao {
         return connection;
     }
 
-    public void insertNewClient(Connection connection, NewCliente newCliente) {
+    public String insertNewClient(Connection connection, NewCliente newCliente) {
         Statement statement;
 
         try {
@@ -34,8 +34,9 @@ public class Conexao {
             statement.executeUpdate(query);
             System.out.println("Novo usuario cadastrando com seus arquivos");
         } catch (Exception e) {
-            System.out.println(e);
+            return "NOT_JOIN_OK";
         }
+        return "JOIN_OK";
     }
 
     public NewCliente findClientFiles(Connection connection, String file) {
@@ -60,6 +61,21 @@ public class Conexao {
         }
 
         return cliente;
+    }
+
+    public String updateNewRequestDownload(Connection connection, NewCliente newCliente){
+        Statement statement;
+
+        try {
+            String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", newCliente.getName(), newCliente.getIp(), newCliente.getPort(), newCliente.getFiles());
+            statement = connection.createStatement();
+            statement.executeUpdate(query);
+            System.out.println("Download de arquivo registrado");
+        } catch (Exception e) {
+            return "NOT_UPDATED";
+        }
+
+        return "UPDATE_OK";
     }
 }
 

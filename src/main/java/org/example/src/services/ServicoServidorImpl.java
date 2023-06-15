@@ -14,7 +14,7 @@ public class ServicoServidorImpl extends UnicastRemoteObject implements ServicoS
     }
 
     @Override
-    public NewCliente obterNome(String file) throws RemoteException {
+    public NewCliente searchRequest(String file) throws RemoteException {
         Conexao conexao = new Conexao();
         Connection connection = conexao.connect_to_db("napster_service", "postgres", "postgres");
         NewCliente clientFiles = conexao.findClientFiles(connection, file);
@@ -23,11 +23,20 @@ public class ServicoServidorImpl extends UnicastRemoteObject implements ServicoS
     }
 
     @Override
-    public String cadastrarNovoUsuario(NewCliente cliente) throws RemoteException {
+    public String joinRequest(NewCliente cliente) throws RemoteException {
         Conexao conexao = new Conexao();
         Connection connection = conexao.connect_to_db("napster_service", "postgres", "postgres");
-        conexao.insertNewClient(connection, cliente);
+        String result = conexao.insertNewClient(connection, cliente);
 
-        return "JOIN_OK";
+        return result;
+    }
+
+    @Override
+    public String update(NewCliente cliente) throws RemoteException {
+        Conexao conexao = new Conexao();
+        Connection connection = conexao.connect_to_db("napster_service", "postgres", "postgres");
+        String result = conexao.updateNewRequestDownload(connection, cliente);
+
+        return result;
     }
 }
