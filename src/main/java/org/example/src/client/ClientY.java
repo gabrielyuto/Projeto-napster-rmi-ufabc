@@ -1,75 +1,121 @@
 package org.example.src.client;
 
-import org.example.src.entity.NewCliente;
+import org.example.src.bean.FileMessage;
+import org.example.src.entity.Cliente;
 import org.example.src.services.ServicoServidor;
+import org.example.src.thread.ListenerThread;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.nio.channels.FileChannel;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Scanner;
 
 public class ClientY {
-    public static void main(String[] args) throws Exception {
-        join("Luiza", "127.0.0.1", 9003, "arquivo3");
-        NewCliente resultSearch = search();
-        requisicaoCliente(resultSearch);
+    private String name = "Amaral";
+    private String localhost = "localhost";
+    private Scanner scanner = new Scanner(System.in);
+
+    public ClientY() throws Exception {
+        this.name = name;
+
+//        join(name, localhost, port,"arquivo1");
+
+        System.out.println("Insira o arquivo que deseja buscar: ");
+        String fileRequest = scanner.nextLine();
+
+        Cliente resultSearch = search(fileRequest);
+
+        System.out.println("Deseja: 1 - solicitar arquivo | 2 - cancelar");
+        int condition = scanner.nextInt();
+
+        if(condition == 1){
+            System.out.println("Deseja solicitar o arquivo para qual porta? ");
+            int destiny_port = scanner.nextInt();
+
+            requestFile(localhost, destiny_port, fileRequest);
+
+        } else if(condition == 2){
+            System.exit(0);
+        }
     }
 
     private static void join(String nameClient, String ip, int port, String files) throws Exception{
         Registry registry = LocateRegistry.getRegistry();
-
         ServicoServidor servicoServidor = (ServicoServidor) registry.lookup("rmi://localhost:127.0.0.1/servidorPrincipal");
 
-        NewCliente newCliente = new NewCliente();
-        newCliente.setName(nameClient);
-        newCliente.setFiles(files);
-        newCliente.setIp(ip);
-        newCliente.setPort(port);
+        Cliente cliente = new Cliente();
+        cliente.setName(nameClient);
+        cliente.setFiles(files);
+        cliente.setIp(ip);
+        cliente.setPort(port);
 
-        String result = servicoServidor.joinRequest(newCliente);
+        String result = servicoServidor.joinRequest(cliente);
     }
 
-    public static NewCliente search() throws Exception{
+    private Cliente search(String fileRequest) throws Exception{
         Registry registry = LocateRegistry.getRegistry();
         ServicoServidor servicoServidor = (ServicoServidor) registry.lookup("rmi://localhost:127.0.0.1/servidorPrincipal");
 
-        BufferedReader entryFile = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Insira o arquivo que deseja buscar: ");
-        String file = entryFile.readLine(); //BLOCKING
-
-        NewCliente resultConsulta = servicoServidor.searchRequest(file);
+        Cliente resultConsulta = servicoServidor.searchRequest(fileRequest);
 
         System.out.println("Quem possui o arquivo é " + resultConsulta.getName() + " " + resultConsulta.getIp() + " " + resultConsulta.getPort());
 
         return resultConsulta;
     }
 
-    private static void requisicaoCliente(NewCliente resultConsulta) throws Exception{
-        Socket socket = new Socket(resultConsulta.getIp(), resultConsulta.getPort());
+    private void requestFile(String host, int destiny_port, String fileRequest) throws IOException, ClassNotFoundException {
+        Socket socket = new Socket(host, destiny_port);
+        DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+        output.writeUTF(fileRequest);
 
-        OutputStream outputStream = socket.getOutputStream();
-        DataOutputStream writer = new DataOutputStream(outputStream);
+        ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+        FileMessage fileRecived = (FileMessage) input.readObject();
+        System.out.println("Voce recebeu o arquivo.");
 
-        InputStreamReader inputStreamReader = new InputStreamReader(socket.getInputStream());
+        salvar(fileRecived);
 
-        BufferedReader reader = new BufferedReader(inputStreamReader);
-        BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("Arquivo salvo!");
 
-        System.out.print("Solicite o arquivo inserindo o nome do arquivo: ");
-        String texto = inFromUser.readLine(); //BLOCKING
+        input.close();
+        output.close();
 
-        writer.writeBytes(texto +"\n");
+        socket.close();
+    }
 
+    private void updatePrincipalServerWithDowload(Cliente resultConsulta) throws Exception{
         Registry registry = LocateRegistry.getRegistry();
         ServicoServidor servicoServidor = (ServicoServidor) registry.lookup("rmi://localhost:127.0.0.1/servidorPrincipal");
 
-        String updateResult = servicoServidor.update(resultConsulta);
+        String updateResult = servicoServidor.updateRequest(resultConsulta);
         System.out.println(updateResult);
+    }
 
-        String response = reader.readLine(); //BLOCKING
-        System.out.println("DoServidor:" + response);
+    private void salvar(FileMessage message) throws IOException {
+        long time = System.currentTimeMillis();
+
+        FileInputStream fileInputStream = new FileInputStream(message.getFile());
+        FileOutputStream fileOutputStream = new FileOutputStream("/home/yuto/Documentos/arquivosClienteX/" + time + "_" + message.getFile().getName());
+
+        FileChannel fin = fileInputStream.getChannel();
+        FileChannel fout = fileOutputStream.getChannel();
+
+        long size = fin.size();
+
+        fin.transferTo(0,size,fout);
+    }
+
+    public static void main(String[] args){
+        try{
+            new Thread(new ListenerThread(9002)).start();
+
+            new ClientX();
+
+        } catch (IOException e){
+            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

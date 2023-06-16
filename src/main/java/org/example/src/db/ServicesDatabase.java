@@ -1,11 +1,10 @@
 package org.example.src.db;
 
 import org.example.src.entity.Cliente;
-import org.example.src.entity.NewCliente;
 
 import java.sql.*;
 
-public class Conexao {
+public class ServicesDatabase {
     public Connection connect_to_db(String dbname, String user, String pass) {
         Connection connection = null;
 
@@ -25,11 +24,11 @@ public class Conexao {
         return connection;
     }
 
-    public String insertNewClient(Connection connection, NewCliente newCliente) {
+    public String insertNewClient(Connection connection, Cliente cliente) {
         Statement statement;
 
         try {
-            String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", newCliente.getName(), newCliente.getIp(), newCliente.getPort(), newCliente.getFiles());
+            String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", cliente.getName(), cliente.getIp(), cliente.getPort(), cliente.getFiles());
             statement = connection.createStatement();
             statement.executeUpdate(query);
             System.out.println("Novo usuario cadastrando com seus arquivos");
@@ -39,11 +38,11 @@ public class Conexao {
         return "JOIN_OK";
     }
 
-    public NewCliente findClientFiles(Connection connection, String file) {
+    public Cliente findClientFiles(Connection connection, String file) {
         PreparedStatement preparedStatement;
         ResultSet resultSet;
 
-        NewCliente cliente = new NewCliente();
+        Cliente cliente = new Cliente();
 
         try {
             preparedStatement = connection.prepareStatement("select * from files where file=?");
@@ -63,11 +62,11 @@ public class Conexao {
         return cliente;
     }
 
-    public String updateNewRequestDownload(Connection connection, NewCliente newCliente){
+    public String updateNewRequestDownload(Connection connection, Cliente cliente){
         Statement statement;
 
         try {
-            String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", newCliente.getName(), newCliente.getIp(), newCliente.getPort(), newCliente.getFiles());
+            String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", cliente.getName(), cliente.getIp(), cliente.getPort(), cliente.getFiles());
             statement = connection.createStatement();
             statement.executeUpdate(query);
             System.out.println("Download de arquivo registrado");

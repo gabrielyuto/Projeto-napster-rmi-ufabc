@@ -4,9 +4,25 @@ import java.io.Serializable;
 
 public class Cliente implements Serializable {
     public String name;
+    public String files;
     public String ip;
-    public String port;
-    public String file;
+    public int port;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getFiles() {
+        return files;
+    }
+
+    public void setFiles(String files) {
+        this.files = files;
+    }
 
     public String getIp() {
         return ip;
@@ -16,27 +32,11 @@ public class Cliente implements Serializable {
         this.ip = ip;
     }
 
-    public String getPort() {
+    public int getPort() {
         return port;
     }
 
-    public void setPort(String port) {
+    public void setPort(int port) {
         this.port = port;
-    }
-
-    public String getFile() {
-        return file;
-    }
-
-    public void setFile(String file) {
-        this.file = file;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }
