@@ -20,8 +20,9 @@ public class ListenerThread extends Thread {
 
     public void run() {
         try{
+            ServerSocket serverSocket = new ServerSocket(port);
+
             while(true){
-                ServerSocket serverSocket = new ServerSocket(port);
                 System.out.println("Esperando conexão...");
                 Socket socket = serverSocket.accept(); //BLOCKING
                 System.out.println("Conexão aceita!");
