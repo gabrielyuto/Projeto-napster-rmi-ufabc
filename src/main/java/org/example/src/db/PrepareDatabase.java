@@ -11,7 +11,7 @@ public class PrepareDatabase {
         Connection connection = servicesDatabase.connect_to_db("napster_service", "postgres", "postgres");
 
         try {
-            String query = "create table files(id SERIAL, name VARCHAR(200), ip VARCHAR(200), port VARCHAR(200), file VARCHAR(200));";
+            String query = "create table files(id SERIAL, name VARCHAR(200), ip VARCHAR(200), port VARCHAR(200), file VARCHAR(200), status VARCHAR(200));";
             statement = connection.createStatement();
             statement.executeUpdate(query);
             System.out.println("Table created");

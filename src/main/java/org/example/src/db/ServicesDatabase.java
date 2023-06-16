@@ -13,9 +13,9 @@ public class ServicesDatabase {
             connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/" + dbname, user, pass);
 
             if (connection != null) {
-                System.out.println("Conexao realizada com sucesso!");
+                System.out.println("Connection success!");
             } else {
-                System.out.println("Conexao não realizada!");
+                System.out.println("Failed connection!");
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -31,7 +31,7 @@ public class ServicesDatabase {
             String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", cliente.getName(), cliente.getIp(), cliente.getPort(), cliente.getFiles());
             statement = connection.createStatement();
             statement.executeUpdate(query);
-            System.out.println("Novo usuario cadastrando com seus arquivos");
+            System.out.println("New user registered in database");
         } catch (Exception e) {
             return "NOT_JOIN_OK";
         }
@@ -62,14 +62,15 @@ public class ServicesDatabase {
         return cliente;
     }
 
-    public String updateNewRequestDownload(Connection connection, Cliente cliente){
-        Statement statement;
+    public String updateNewRequestDownload(Connection connection, String name){
+        PreparedStatement preparedStatement;
 
         try {
-            String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", cliente.getName(), cliente.getIp(), cliente.getPort(), cliente.getFiles());
-            statement = connection.createStatement();
-            statement.executeUpdate(query);
-            System.out.println("Download de arquivo registrado");
+            preparedStatement = connection.prepareStatement("update files set status = 'DOWNLOADED' where name = ?");
+            preparedStatement.setString(1, name);
+            preparedStatement.executeQuery();
+
+            System.out.println("UPDATE_OK");
         } catch (Exception e) {
             return "NOT_UPDATED";
         }

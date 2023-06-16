@@ -1,14 +1,14 @@
 package org.example.src.thread;
 
 import org.example.src.bean.FileMessage;
+import org.example.src.services.ServerService;
 
 import javax.swing.*;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 public class ListenerThread extends Thread {
     private Socket socket = null;
@@ -23,23 +23,29 @@ public class ListenerThread extends Thread {
             ServerSocket serverSocket = new ServerSocket(port);
 
             while(true){
-                System.out.println("Esperando conexão...");
+                System.out.println("Client server awaiting connection...");
                 Socket socket = serverSocket.accept(); //BLOCKING
-                System.out.println("Conexão aceita!");
+                System.out.println("Connection accepted!");
 
-                System.out.println("Cliente " + socket.getInetAddress().getHostAddress() + " conectado");
+                System.out.println("Client " + socket.getInetAddress().getHostAddress() + " connected");
 
                 DataInputStream inputServer = new DataInputStream(socket.getInputStream());
                 String fileRequest = inputServer.readUTF();
 
-                System.out.println("O cliente deseja o arquivo: " + fileRequest);
+                System.out.println("The client is requesting the file: " + fileRequest);
 
                 FileMessage fileToSend = send();
 
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
                 output.writeObject(fileToSend);
+
+                String downloaded = registerDownload(socket.getInetAddress().getHostAddress());
+                DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                dataOutputStream.writeUTF(downloaded);
+
+                System.out.println("FILE SENT TO CLIENT");
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -57,5 +63,15 @@ public class ListenerThread extends Thread {
             return fileMessage;
         }
         return null;
+    }
+
+    private String registerDownload(String name) throws Exception{
+        Registry registry = LocateRegistry.getRegistry();
+        ServerService serverService = (ServerService) registry.lookup("rmi://localhost:127.0.0.1/principalServer");
+
+        String updateResult = serverService.updateRequest(name);
+        System.out.println(updateResult);
+
+        return updateResult;
     }
 }

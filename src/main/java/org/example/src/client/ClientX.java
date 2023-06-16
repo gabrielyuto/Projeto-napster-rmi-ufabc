@@ -2,7 +2,7 @@ package org.example.src.client;
 
 import org.example.src.bean.FileMessage;
 import org.example.src.entity.Cliente;
-import org.example.src.services.ServicoServidor;
+import org.example.src.services.ServerService;
 import org.example.src.thread.ListenerThread;
 
 import java.io.*;
@@ -13,28 +13,27 @@ import java.rmi.registry.Registry;
 import java.util.Scanner;
 
 public class ClientX {
+    private Scanner scanner = new Scanner(System.in);
     private String name = "Gabriel";
     private String localhost = "localhost";
-    private Scanner scanner = new Scanner(System.in);
+    private int client_port = 9001;
 
     public ClientX() throws Exception {
-        this.name = name;
+        join(name, localhost, client_port,"Aula.mp4");
 
-//        join(name, localhost, port,"arquivo1");
-
-        System.out.println("Insira o arquivo que deseja buscar: ");
+        System.out.println("SEARCH: ");
         String fileRequest = scanner.nextLine();
 
-        Cliente resultSearch = search(fileRequest);
+        search(fileRequest);
 
-        System.out.println("Deseja: 1 - solicitar arquivo | 2 - cancelar");
+        System.out.println("1 <- REQUEST FILE | 2 <- CANCELL");
         int condition = scanner.nextInt();
 
         if(condition == 1){
-            System.out.println("Deseja solicitar o arquivo para qual porta? ");
+            System.out.println("Which port do you want to request the file for?");
             int destiny_port = scanner.nextInt();
 
-            requestFile(localhost, destiny_port, fileRequest);
+            download(localhost, destiny_port, fileRequest);
 
         } else if(condition == 2){
             System.exit(0);
@@ -43,7 +42,7 @@ public class ClientX {
 
     private static void join(String nameClient, String ip, int port, String files) throws Exception{
         Registry registry = LocateRegistry.getRegistry();
-        ServicoServidor servicoServidor = (ServicoServidor) registry.lookup("rmi://localhost:127.0.0.1/servidorPrincipal");
+        ServerService serverService = (ServerService) registry.lookup("rmi://localhost:127.0.0.1/principalServer");
 
         Cliente cliente = new Cliente();
         cliente.setName(nameClient);
@@ -51,32 +50,36 @@ public class ClientX {
         cliente.setIp(ip);
         cliente.setPort(port);
 
-        String result = servicoServidor.joinRequest(cliente);
+        serverService.joinRequest(cliente);
     }
 
     private Cliente search(String fileRequest) throws Exception{
         Registry registry = LocateRegistry.getRegistry();
-        ServicoServidor servicoServidor = (ServicoServidor) registry.lookup("rmi://localhost:127.0.0.1/servidorPrincipal");
+        ServerService serverService = (ServerService) registry.lookup("rmi://localhost:127.0.0.1/principalServer");
 
-        Cliente resultConsulta = servicoServidor.searchRequest(fileRequest);
+        Cliente resultConsulta = serverService.searchRequest(fileRequest);
 
-        System.out.println("Quem possui o arquivo é " + resultConsulta.getName() + " " + resultConsulta.getIp() + " " + resultConsulta.getPort());
+        System.out.println("Who owns the file is NAME: " + resultConsulta.getName() + " HOST: " + resultConsulta.getIp() + " IP: " + resultConsulta.getPort());
 
         return resultConsulta;
     }
 
-    private void requestFile(String host, int destiny_port, String fileRequest) throws IOException, ClassNotFoundException {
+    private void download(String host, int destiny_port, String fileRequest) throws IOException, ClassNotFoundException {
         Socket socket = new Socket(host, destiny_port);
         DataOutputStream output = new DataOutputStream(socket.getOutputStream());
         output.writeUTF(fileRequest);
+        System.out.println("DOWNLOAD...");
 
         ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
         FileMessage fileRecived = (FileMessage) input.readObject();
-        System.out.println("Voce recebeu o arquivo.");
+        System.out.println("The file arrived!");
 
-        salvar(fileRecived);
+        save(fileRecived);
+        System.out.println("Saved!");
 
-        System.out.println("Arquivo salvo!");
+        DataInputStream dataInput = new DataInputStream(socket.getInputStream());
+        String string = dataInput.readUTF();
+        System.out.println(string);
 
         input.close();
         output.close();
@@ -84,15 +87,7 @@ public class ClientX {
         socket.close();
     }
 
-    private void updatePrincipalServerWithDowload(Cliente resultConsulta) throws Exception{
-        Registry registry = LocateRegistry.getRegistry();
-        ServicoServidor servicoServidor = (ServicoServidor) registry.lookup("rmi://localhost:127.0.0.1/servidorPrincipal");
-
-        String updateResult = servicoServidor.updateRequest(resultConsulta);
-        System.out.println(updateResult);
-    }
-
-    private void salvar(FileMessage message) throws IOException {
+    private void save(FileMessage message) throws IOException {
         long time = System.currentTimeMillis();
 
         FileInputStream fileInputStream = new FileInputStream(message.getFile());

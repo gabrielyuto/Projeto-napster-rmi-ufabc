@@ -7,8 +7,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
 
-public class ServicoServidorImpl extends UnicastRemoteObject implements ServicoServidor {
-    public ServicoServidorImpl() throws RemoteException {
+public class ServerServiceImpl extends UnicastRemoteObject implements ServerService {
+    public ServerServiceImpl() throws RemoteException {
         super();
     }
 
@@ -31,10 +31,10 @@ public class ServicoServidorImpl extends UnicastRemoteObject implements ServicoS
     }
 
     @Override
-    public String updateRequest(Cliente cliente) throws RemoteException {
+    public String updateRequest(String name) throws RemoteException {
         ServicesDatabase servicesDatabase = new ServicesDatabase();
         Connection connection = servicesDatabase.connect_to_db("napster_service", "postgres", "postgres");
-        String result = servicesDatabase.updateNewRequestDownload(connection, cliente);
+        String result = servicesDatabase.updateNewRequestDownload(connection, name);
 
         return result;
     }
