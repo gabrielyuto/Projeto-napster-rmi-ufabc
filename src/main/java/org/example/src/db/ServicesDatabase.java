@@ -1,6 +1,6 @@
 package org.example.src.db;
 
-import org.example.src.entity.Cliente;
+import org.example.src.entity.Client;
 
 import java.sql.*;
 
@@ -24,11 +24,11 @@ public class ServicesDatabase {
         return connection;
     }
 
-    public String insertNewClient(Connection connection, Cliente cliente) {
+    public String insertNewClient(Connection connection, Client client) {
         Statement statement;
 
         try {
-            String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", cliente.getName(), cliente.getIp(), cliente.getPort(), cliente.getFiles());
+            String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", client.getName(), client.getIp(), client.getClient_port(), client.getFiles());
             statement = connection.createStatement();
             statement.executeUpdate(query);
             System.out.println("New user registered in database");
@@ -38,11 +38,11 @@ public class ServicesDatabase {
         return "JOIN_OK";
     }
 
-    public Cliente findClientFiles(Connection connection, String file) {
+    public Client findClientFiles(Connection connection, String file) {
         PreparedStatement preparedStatement;
         ResultSet resultSet;
 
-        Cliente cliente = new Cliente();
+        Client cliente = new Client();
 
         try {
             preparedStatement = connection.prepareStatement("select * from files where file=?");
@@ -52,7 +52,7 @@ public class ServicesDatabase {
             if (resultSet.next()) {
                 cliente.setName(resultSet.getString("name"));
                 cliente.setIp(resultSet.getString("ip"));
-                cliente.setPort(resultSet.getInt("port"));
+                cliente.setClient_port(resultSet.getInt("port"));
                 cliente.setFiles(resultSet.getString("file"));
             }
         } catch(SQLException ex){

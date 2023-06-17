@@ -1,7 +1,7 @@
 package org.example.src.services;
 
 import org.example.src.db.ServicesDatabase;
-import org.example.src.entity.Cliente;
+import org.example.src.entity.Client;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -13,20 +13,21 @@ public class ServerServiceImpl extends UnicastRemoteObject implements ServerServ
     }
 
     @Override
-    public Cliente searchRequest(String file) throws RemoteException {
+    public Client searchRequest(String file) throws RemoteException {
         ServicesDatabase servicesDatabase = new ServicesDatabase();
         Connection connection = servicesDatabase.connect_to_db("napster_service", "postgres", "postgres");
-        Cliente clientFiles = servicesDatabase.findClientFiles(connection, file);
+        Client clientFiles = servicesDatabase.findClientFiles(connection, file);
 
         return clientFiles;
     }
 
     @Override
-    public String joinRequest(Cliente cliente) throws RemoteException {
+    public String joinRequest(Client client) throws RemoteException {
         ServicesDatabase servicesDatabase = new ServicesDatabase();
         Connection connection = servicesDatabase.connect_to_db("napster_service", "postgres", "postgres");
-        String result = servicesDatabase.insertNewClient(connection, cliente);
+        String result = servicesDatabase.insertNewClient(connection, client);
 
+        System.out.println("Sou peer " + client.getIp() + ":" + client.getClient_port() + " com arquivos " + client.getFiles());
         return result;
     }
 
