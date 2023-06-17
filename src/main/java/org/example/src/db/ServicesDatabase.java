@@ -1,8 +1,10 @@
 package org.example.src.db;
 
-import org.example.src.entity.Client;
+import org.example.src.client.Client;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServicesDatabase {
     public Connection connect_to_db(String dbname, String user, String pass) {
@@ -25,56 +27,69 @@ public class ServicesDatabase {
     }
 
     public String insertNewClient(Connection connection, Client client) {
-        Statement statement;
-
         try {
-            String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", client.getName(), client.getIp(), client.getClient_port(), client.getFiles());
-            statement = connection.createStatement();
-            statement.executeUpdate(query);
-            System.out.println("New user registered in database");
+            client.getFiles().forEach(file -> {
+                Statement statement;
+                String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", client.getName(), client.getIp(), client.getClient_port(), file);
+                try {
+                    statement = connection.createStatement();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    statement.executeUpdate(query);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         } catch (Exception e) {
             return "NOT_JOIN_OK";
         }
         return "JOIN_OK";
     }
 
-    public Client findClientFiles(Connection connection, String file) {
+    public List<Client> findClientFiles(Connection connection, Client client) {
         PreparedStatement preparedStatement;
         ResultSet resultSet;
 
-        Client cliente = new Client();
+        List<Client> listClientWithFile = new ArrayList<>();
 
         try {
             preparedStatement = connection.prepareStatement("select * from files where file=?");
-            preparedStatement.setString(1, file);
+            preparedStatement.setString(1, client.getFile_request());
             resultSet = preparedStatement.executeQuery();
 
-            if (resultSet.next()) {
+            while(resultSet.next()){
+                Client cliente = new Client();
+
                 cliente.setName(resultSet.getString("name"));
                 cliente.setIp(resultSet.getString("ip"));
                 cliente.setClient_port(resultSet.getInt("port"));
-                cliente.setFiles(resultSet.getString("file"));
+                cliente.setFile_required_return(resultSet.getString("file"));
+
+                listClientWithFile.add(cliente);
             }
         } catch(SQLException ex){
             return null;
         }
 
-        return cliente;
+        return listClientWithFile;
     }
 
-    public String updateNewRequestDownload(Connection connection, String name){
+    public String updateNewRequestDownload(Connection connection, Client client){
         PreparedStatement preparedStatement;
 
         try {
-            preparedStatement = connection.prepareStatement("update files set status = 'DOWNLOADED' where name = ?");
-            preparedStatement.setString(1, name);
-            preparedStatement.executeQuery();
+            preparedStatement = connection.prepareStatement("update files set status='DOWNLOADED' where port = ? AND file=?");
+            preparedStatement.setString(1, String.valueOf(client.getDestiny_port()));
+            preparedStatement.setString(2, client.getFile_request());
+            preparedStatement.execute();
 
-            System.out.println("UPDATE_OK");
-        } catch (Exception e) {
-            return "NOT_UPDATED";
+        } catch (SQLException ex) {
+            return "UPDATE_NOT_OK";
         }
 
+        System.out.println("UPDATE_OK");
         return "UPDATE_OK";
     }
 }

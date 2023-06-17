@@ -1,0 +1,1 @@
+![Captura de tela de 2023-06-17 11-02-56.png](..%2F..%2F..%2F..%2F..%2FImagens%2FCapturas%20de%20tela%2FCaptura%20de%20tela%20de%202023-06-17%2011-02-56.png)

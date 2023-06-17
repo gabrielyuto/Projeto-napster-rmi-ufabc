@@ -1,20 +1,28 @@
-package org.example.src;
+package org.example.src.client;
 
-import org.example.src.entity.Client;
 import org.example.src.services.ClientService;
 import org.example.src.thread.ListenerThread;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class ClientMainX {
     public static void main(String[] args) {
         try{
-            Client client = new Client("Gabriel", "localhost", 9001,"arquivo", "/home/yuto/Documentos/arquivosClienteX/");
+            List<String> files = new ArrayList<>();
+            files.add("musica.mp3");
+            files.add("video.mp4");
+            files.add("aulas.mp3");
+
+            Client client = new Client("Gabriel", "127.0.0.1", 9001, files, "/home/yuto/Documentos/teste/arquivosGabriel/");
 
             ClientService clientService = new ClientService();
 
             new Thread(new ListenerThread(client.getClient_port())).start();
+
+            String fileRequest = null;
 
             while(true) {
                 System.out.println("1-JOIN | 2-SEARCH | 3-DOWNLOAD | 4-CANCELL");
@@ -27,7 +35,7 @@ public class ClientMainX {
                 }
                 else if(menu_choice == 2){
                     System.out.println("SEARCH: ");
-                    String fileRequest = scanner.next();
+                    fileRequest = scanner.next();
 
                     client.setFile_request(fileRequest);
 
@@ -36,7 +44,6 @@ public class ClientMainX {
                 else if(menu_choice == 3){
                     System.out.println("DOWNLOAD: ");
                     int destiny_port = scanner.nextInt();
-                    String fileRequest = scanner.next();
 
                     client.setFile_request(fileRequest);
                     client.setDestiny_port(destiny_port);

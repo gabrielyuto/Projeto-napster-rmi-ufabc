@@ -1,11 +1,12 @@
 package org.example.src.services;
 
 import org.example.src.db.ServicesDatabase;
-import org.example.src.entity.Client;
+import org.example.src.client.Client;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
+import java.util.List;
 
 public class ServerServiceImpl extends UnicastRemoteObject implements ServerService {
     public ServerServiceImpl() throws RemoteException {
@@ -13,11 +14,12 @@ public class ServerServiceImpl extends UnicastRemoteObject implements ServerServ
     }
 
     @Override
-    public Client searchRequest(String file) throws RemoteException {
+    public List<Client> searchRequest(Client client) throws RemoteException {
         ServicesDatabase servicesDatabase = new ServicesDatabase();
         Connection connection = servicesDatabase.connect_to_db("napster_service", "postgres", "postgres");
-        Client clientFiles = servicesDatabase.findClientFiles(connection, file);
+        List<Client> clientFiles = servicesDatabase.findClientFiles(connection, client);
 
+        System.out.println("Peer " + client.getIp() + ":" + client.getClient_port() + " solicitou arquivo " + client.getFile_request());
         return clientFiles;
     }
 
@@ -32,10 +34,10 @@ public class ServerServiceImpl extends UnicastRemoteObject implements ServerServ
     }
 
     @Override
-    public String updateRequest(String name) throws RemoteException {
+    public String updateRequest(Client client) throws RemoteException {
         ServicesDatabase servicesDatabase = new ServicesDatabase();
         Connection connection = servicesDatabase.connect_to_db("napster_service", "postgres", "postgres");
-        String result = servicesDatabase.updateNewRequestDownload(connection, name);
+        String result = servicesDatabase.updateNewRequestDownload(connection, client);
 
         return result;
     }

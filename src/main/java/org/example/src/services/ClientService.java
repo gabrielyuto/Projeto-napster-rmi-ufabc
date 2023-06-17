@@ -1,13 +1,14 @@
 package org.example.src.services;
 
 import org.example.src.bean.FileMessage;
-import org.example.src.entity.Client;
+import org.example.src.client.Client;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.List;
 import java.util.Scanner;
 
 public class ClientService {
@@ -20,7 +21,7 @@ public class ClientService {
         String result = serverService.joinRequest(client);
 
         if(!result.isEmpty()){
-            System.out.println("Sou peer " + client + ":" + client.getClient_port() + " com arquivos " + client.getFiles());
+            System.out.println("Sou peer " + client.getIp() + ":" + client.getClient_port() + " com arquivos " + client.getFiles());
         }
     }
 
@@ -28,15 +29,17 @@ public class ClientService {
         Registry registry = LocateRegistry.getRegistry();
         ServerService serverService = (ServerService) registry.lookup("rmi://localhost:127.0.0.1/principalServer");
 
-        Client resultConsulta = serverService.searchRequest(client.getFile_request());
+        List<Client> resultConsulta = serverService.searchRequest(client);
 
-        System.out.println("Peers com arquivo solicitado: " + resultConsulta.getIp() + ":" + resultConsulta.getClient_port());
+        resultConsulta.forEach(clientFromList -> {
+            System.out.println("Peers com arquivo solicitado: " + clientFromList.getIp() + ":" + clientFromList.getClient_port());
+        });
     }
 
-    public void download(Client client) throws IOException, ClassNotFoundException {
+    public void download(Client client) throws Exception {
         Socket socket = new Socket(client.getIp(), client.getDestiny_port());
         DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-        output.writeUTF(client.getFiles());
+        output.writeUTF(client.getFile_request());
 
         ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
         FileMessage fileRecived = (FileMessage) input.readObject();
@@ -44,9 +47,7 @@ public class ClientService {
         save(fileRecived, client);
         System.out.println("Arquivo " + fileRecived.getFile() + " baixado com sucesso na pasta " + client.getPath_to_save());
 
-        DataInputStream dataInput = new DataInputStream(socket.getInputStream());
-        String string = dataInput.readUTF();
-        System.out.println(string);
+        update(client);
 
         input.close();
         output.close();
@@ -66,5 +67,14 @@ public class ClientService {
         long size = fin.size();
 
         fin.transferTo(0,size,fout);
+    }
+
+    private void update(Client client) throws Exception {
+        Registry registry = LocateRegistry.getRegistry();
+        ServerService serverService = (ServerService) registry.lookup("rmi://localhost:127.0.0.1/principalServer");
+
+        String result = serverService.updateRequest(client);
+
+        System.out.println(result);
     }
 }

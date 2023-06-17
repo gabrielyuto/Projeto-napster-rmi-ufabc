@@ -1,14 +1,14 @@
 package org.example.src.thread;
 
 import org.example.src.bean.FileMessage;
-import org.example.src.services.ServerService;
 
 import javax.swing.*;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 
 public class ListenerThread extends Thread {
     private Socket socket = null;
@@ -39,10 +39,6 @@ public class ListenerThread extends Thread {
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
                 output.writeObject(fileToSend);
 
-                String downloaded = registerDownload(socket.getInetAddress().getHostAddress());
-                DataOutputStream dataOutputStream = new DataOutputStream(socket.getOutputStream());
-                dataOutputStream.writeUTF(downloaded);
-
                 System.out.println("FILE SENT TO CLIENT");
             }
         } catch (Exception e) {
@@ -63,15 +59,5 @@ public class ListenerThread extends Thread {
             return fileMessage;
         }
         return null;
-    }
-
-    private String registerDownload(String name) throws Exception{
-        Registry registry = LocateRegistry.getRegistry();
-        ServerService serverService = (ServerService) registry.lookup("rmi://localhost:127.0.0.1/principalServer");
-
-        String updateResult = serverService.updateRequest(name);
-        System.out.println(updateResult);
-
-        return updateResult;
     }
 }

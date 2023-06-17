@@ -1,17 +1,19 @@
-package org.example.src.entity;
+package org.example.src.client;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Client implements Serializable {
     private String name;
     private String ip;
-    private String files;
+    private List<String> files;
     private String path_to_save;
     private String file_request;
     private int client_port;
     private int destiny_port;
+    private String file_required_return;
 
-    public Client(String name, String ip, int client_port, String files, String path_to_save) {
+    public Client(String name, String ip, int client_port, List<String> files, String path_to_save) {
         this.name = name;
         this.ip = ip;
         this.client_port = client_port;
@@ -46,11 +48,11 @@ public class Client implements Serializable {
         this.client_port = client_port;
     }
 
-    public String getFiles() {
+    public List<String> getFiles() {
         return files;
     }
 
-    public void setFiles(String files) {
+    public void setFiles(List<String> files) {
         this.files = files;
     }
 
@@ -76,5 +78,13 @@ public class Client implements Serializable {
 
     public void setFile_request(String file_request) {
         this.file_request = file_request;
+    }
+
+    public String getFile_required_return() {
+        return file_required_return;
+    }
+
+    public void setFile_required_return(String file_required_return) {
+        this.file_required_return = file_required_return;
     }
 }
