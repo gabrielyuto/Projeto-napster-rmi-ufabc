@@ -17,6 +17,7 @@ public class ClientMainX {
 
             List<String> files = new ArrayList<>();
             files.add("arquivo.jpg");
+            files.add("Thor-ragnarok.mp4");
 
             Client client = new Client("Gabriel", "127.0.0.1", 9001, files, local_path);
 

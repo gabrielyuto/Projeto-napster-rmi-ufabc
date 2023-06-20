@@ -30,15 +30,11 @@ public class ListenerThread extends Thread {
                 ObjectInputStream inputServer = new ObjectInputStream(socket.getInputStream());
                 Client clientArrived = (Client) inputServer.readObject();
 
-                System.out.println("The client is requesting the file: " + clientArrived.getFile_request());
-
                 // Busca pelo arquivo atraves do método send implementado, e devolve para o cliente.
                 FileMessage message = send(clientArrived.getDestiny_path_files(), clientArrived.getFile_request());
 
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
                 output.writeObject(message);
-
-                System.out.println("FILE SENT TO CLIENT");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

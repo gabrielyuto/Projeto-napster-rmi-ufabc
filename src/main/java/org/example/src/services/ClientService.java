@@ -69,7 +69,7 @@ public class ClientService {
         long time = System.currentTimeMillis();
 
         FileInputStream fileInputStream = new FileInputStream(message.getFile());
-        FileOutputStream fileOutputStream = new FileOutputStream(client.getLocal_path_files() + time + "_" + message.getFile().getName());
+        FileOutputStream fileOutputStream = new FileOutputStream(message.getFile().getName());
 
         FileChannel fin = fileInputStream.getChannel();
         FileChannel fout = fileOutputStream.getChannel();

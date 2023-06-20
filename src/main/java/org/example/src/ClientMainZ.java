@@ -10,16 +10,15 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-public class ClientMainY {
+public class ClientMainZ {
     public static void main(String[] args) {
         try{
-            String local_path = "/home/yuto/Documentos/teste/arquivosGiovanna/";
+            String local_path = "/home/yuto/Documentos/teste/arquivosPedro/";
 
             List<String> files = new ArrayList<>();
-            files.add("moto.jpg");
-            files.add("paisagem.jpg");
+            files.add("ProjetoX.mp4");
 
-            Client client = new Client("Giovanna", "127.0.0.1", 9002, files, local_path);
+            Client client = new Client("Pedro", "127.0.0.1", 9003, files, local_path);
 
             ClientService clientService = new ClientService();
 
