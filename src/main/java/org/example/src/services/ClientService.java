@@ -31,6 +31,10 @@ public class ClientService {
 
         List<Client> resultConsulta = serverService.searchRequest(client);
 
+        if(resultConsulta.isEmpty()){
+            System.out.println("File not found");
+        }
+
         resultConsulta.forEach(clientFromList -> {
             System.out.println("Peers com arquivo solicitado: " + clientFromList.getIp() + ":" + clientFromList.getClient_port());
         });
