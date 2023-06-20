@@ -7,22 +7,24 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class ClientMainX {
     public static void main(String[] args) {
         try{
-            List<String> files = new ArrayList<>();
-            files.add("musica.mp3");
-            files.add("video.mp4");
-            files.add("aulas.mp3");
+            String local_path = "/home/yuto/Documentos/teste/arquivosGabriel/";
 
-            Client client = new Client("Gabriel", "127.0.0.1", 9001, files, "/home/yuto/Documentos/teste/arquivosGabriel/");
+            List<String> files = new ArrayList<>();
+            files.add("arquivo.jpg");
+
+            Client client = new Client("Gabriel", "127.0.0.1", 9001, files, local_path);
 
             ClientService clientService = new ClientService();
 
             new Thread(new ListenerThread(client.getClient_port())).start();
 
             String fileRequest = null;
+            List<Client> listClients = null;
 
             while(true) {
                 System.out.println("1-JOIN | 2-SEARCH | 3-DOWNLOAD | 4-CANCELL");
@@ -39,14 +41,24 @@ public class ClientMainX {
 
                     client.setFile_request(fileRequest);
 
-                    clientService.search(client);
+                    listClients = clientService.search(client);
                 }
                 else if(menu_choice == 3){
+                    String finalFileRequest = fileRequest;
                     System.out.println("DOWNLOAD: ");
                     int destiny_port = scanner.nextInt();
 
                     client.setFile_request(fileRequest);
                     client.setDestiny_port(destiny_port);
+
+                    List<Client> list =  listClients
+                            .stream().filter(
+                                    a -> a.getFile_required_return().equals(finalFileRequest)
+                                            && a.getClient_port() == destiny_port).collect(Collectors.toList());
+
+                    Client first = list.stream().findFirst().get();
+
+                    client.setDestiny_path_files(first.getDestiny_path_files());
 
                     clientService.download(client);
                 }

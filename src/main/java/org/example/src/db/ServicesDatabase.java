@@ -30,7 +30,7 @@ public class ServicesDatabase {
         try {
             client.getFiles().forEach(file -> {
                 Statement statement;
-                String query = String.format("insert into files(name, ip, port, file) values('%s','%s','%s','%s');", client.getName(), client.getIp(), client.getClient_port(), file);
+                String query = String.format("insert into files(name, ip, port, file, path) values('%s','%s','%s','%s','%s');", client.getName(), client.getIp(), client.getClient_port(), file, client.getLocal_path_files());
                 try {
                     statement = connection.createStatement();
                 } catch (SQLException e) {
@@ -66,6 +66,7 @@ public class ServicesDatabase {
                 cliente.setIp(resultSet.getString("ip"));
                 cliente.setClient_port(resultSet.getInt("port"));
                 cliente.setFile_required_return(resultSet.getString("file"));
+                cliente.setDestiny_path_files(resultSet.getString("path"));
 
                 listClientWithFile.add(cliente);
             }

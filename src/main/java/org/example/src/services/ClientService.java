@@ -25,7 +25,7 @@ public class ClientService {
         }
     }
 
-    public void search(Client client) throws Exception{
+    public List<Client> search(Client client) throws Exception{
         Registry registry = LocateRegistry.getRegistry();
         ServerService serverService = (ServerService) registry.lookup("rmi://localhost:127.0.0.1/principalServer");
 
@@ -34,18 +34,20 @@ public class ClientService {
         resultConsulta.forEach(clientFromList -> {
             System.out.println("Peers com arquivo solicitado: " + clientFromList.getIp() + ":" + clientFromList.getClient_port());
         });
+
+        return resultConsulta;
     }
 
     public void download(Client client) throws Exception {
         Socket socket = new Socket(client.getIp(), client.getDestiny_port());
-        DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-        output.writeUTF(client.getFile_request());
+        ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
+        output.writeObject(client);
 
         ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-        FileMessage fileRecived = (FileMessage) input.readObject();
+        FileMessage fileReceived = (FileMessage) input.readObject();
 
-        save(fileRecived, client);
-        System.out.println("Arquivo " + fileRecived.getFile() + " baixado com sucesso na pasta " + client.getPath_to_save());
+        save(fileReceived, client);
+        System.out.println("Arquivo " + fileReceived.getFile() + " baixado com sucesso na pasta " + client.getLocal_path_files());
 
         update(client);
 
@@ -59,7 +61,7 @@ public class ClientService {
         long time = System.currentTimeMillis();
 
         FileInputStream fileInputStream = new FileInputStream(message.getFile());
-        FileOutputStream fileOutputStream = new FileOutputStream(client.getPath_to_save() + time + "_" + message.getFile().getName());
+        FileOutputStream fileOutputStream = new FileOutputStream(client.getLocal_path_files() + time + "_" + message.getFile().getName());
 
         FileChannel fin = fileInputStream.getChannel();
         FileChannel fout = fileOutputStream.getChannel();
