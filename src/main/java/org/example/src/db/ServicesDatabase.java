@@ -13,12 +13,6 @@ public class ServicesDatabase {
         try {
             Class.forName("org.postgresql.Driver");
             connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/" + dbname, user, pass);
-
-            if (connection != null) {
-                System.out.println("Connection success!");
-            } else {
-                System.out.println("Failed connection!");
-            }
         } catch (Exception e) {
             System.out.println(e);
         }

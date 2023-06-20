@@ -8,21 +8,13 @@ import java.rmi.server.UnicastRemoteObject;
 import java.sql.Connection;
 import java.util.List;
 
+//    FUNCIONALIDADES DO SERVIDOR RMI
 public class ServerServiceImpl extends UnicastRemoteObject implements ServerService {
     public ServerServiceImpl() throws RemoteException {
         super();
     }
 
-    @Override
-    public List<Client> searchRequest(Client client) throws RemoteException {
-        ServicesDatabase servicesDatabase = new ServicesDatabase();
-        Connection connection = servicesDatabase.connect_to_db("napster_service", "postgres", "postgres");
-        List<Client> clientFiles = servicesDatabase.findClientFiles(connection, client);
-
-        System.out.println("Peer " + client.getIp() + ":" + client.getClient_port() + " solicitou arquivo " + client.getFile_request());
-        return clientFiles;
-    }
-
+    //    REQUISICAO JOIN
     @Override
     public String joinRequest(Client client) throws RemoteException {
         ServicesDatabase servicesDatabase = new ServicesDatabase();
@@ -33,6 +25,18 @@ public class ServerServiceImpl extends UnicastRemoteObject implements ServerServ
         return result;
     }
 
+    //    REQUISICAO SEARCH
+    @Override
+    public List<Client> searchRequest(Client client) throws RemoteException {
+        ServicesDatabase servicesDatabase = new ServicesDatabase();
+        Connection connection = servicesDatabase.connect_to_db("napster_service", "postgres", "postgres");
+        List<Client> clientFiles = servicesDatabase.findClientFiles(connection, client);
+
+        System.out.println("Peer " + client.getIp() + ":" + client.getClient_port() + " solicitou arquivo " + client.getFile_request());
+        return clientFiles;
+    }
+
+    //    REQUISICAO UPDATE
     @Override
     public String updateRequest(Client client) throws RemoteException {
         ServicesDatabase servicesDatabase = new ServicesDatabase();

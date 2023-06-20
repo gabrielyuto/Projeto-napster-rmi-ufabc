@@ -1,5 +1,6 @@
-package org.example.src.client;
+package org.example.src;
 
+import org.example.src.client.Client;
 import org.example.src.services.ClientService;
 import org.example.src.thread.ListenerThread;
 
@@ -9,10 +10,10 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-public class ClientMainX {
+public class ClientMainY {
     public static void main(String[] args) {
         try{
-            String local_path = "/home/yuto/Documentos/teste/arquivosGabriel/";
+            String local_path = "/home/yuto/Documentos/teste/arquivosGiovanna/";
 
             List<String> files = new ArrayList<>();
             files.add("arquivo.jpg");
@@ -27,16 +28,18 @@ public class ClientMainX {
             List<Client> listClients = null;
 
             while(true) {
-                System.out.println("1-JOIN | 2-SEARCH | 3-DOWNLOAD | 4-CANCELL");
+                System.out.println("1-JOIN | 2-SEARCH | 3-DOWNLOAD");
                 Scanner scanner = new Scanner(System.in);
 
                 int menu_choice = scanner.nextInt();
 
                 if(menu_choice == 1){
+                    System.out.println("JOIN:");
                     clientService.join(client);
                 }
                 else if(menu_choice == 2){
-                    System.out.println("SEARCH: ");
+                    System.out.println("SEARCH");
+                    System.out.println("Digite o arquivo que deseja buscar: ");
                     fileRequest = scanner.next();
 
                     client.setFile_request(fileRequest);
@@ -44,8 +47,9 @@ public class ClientMainX {
                     listClients = clientService.search(client);
                 }
                 else if(menu_choice == 3){
+                    System.out.println("DOWNLOAD:");
+                    System.out.println("Digite a porta que deseja solicitar o arquivo: ");
                     String finalFileRequest = fileRequest;
-                    System.out.println("DOWNLOAD: ");
                     int destiny_port = scanner.nextInt();
 
                     client.setFile_request(fileRequest);

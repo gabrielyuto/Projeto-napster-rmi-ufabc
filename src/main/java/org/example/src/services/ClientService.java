@@ -11,9 +11,11 @@ import java.rmi.registry.Registry;
 import java.util.List;
 import java.util.Scanner;
 
+//    SERVICOS DOS CLIENTS
 public class ClientService {
     private Scanner scanner = new Scanner(System.in);
 
+    //    ENVIA REQUISICAO JOIN PARA O SERVIDOR RMI
     public void join(Client client) throws Exception{
         Registry registry = LocateRegistry.getRegistry();
         ServerService serverService = (ServerService) registry.lookup("rmi://localhost:127.0.0.1/principalServer");
@@ -24,7 +26,7 @@ public class ClientService {
             System.out.println("Sou peer " + client.getIp() + ":" + client.getClient_port() + " com arquivos " + client.getFiles());
         }
     }
-
+    //    ENVIA REQUISICAO SEARCH PARA O SERVIDOR RMI
     public List<Client> search(Client client) throws Exception{
         Registry registry = LocateRegistry.getRegistry();
         ServerService serverService = (ServerService) registry.lookup("rmi://localhost:127.0.0.1/principalServer");
@@ -42,6 +44,7 @@ public class ClientService {
         return resultConsulta;
     }
 
+    //    ENVIA REQUISICAO DOWNLOAD PARA OUTRO PER
     public void download(Client client) throws Exception {
         Socket socket = new Socket(client.getIp(), client.getDestiny_port());
         ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
@@ -61,6 +64,7 @@ public class ClientService {
         socket.close();
     }
 
+    //    METODO SAVE INVOCADO PELO REQUISICAO DOWNLOAD
     private void save(FileMessage message, Client client) throws IOException {
         long time = System.currentTimeMillis();
 
@@ -75,6 +79,7 @@ public class ClientService {
         fin.transferTo(0,size,fout);
     }
 
+    //    ENVIA REQUISICAO UPDATE PARA INFORMAR O SERVIDOR RMI SOBRE O DOWNLOAD
     private void update(Client client) throws Exception {
         Registry registry = LocateRegistry.getRegistry();
         ServerService serverService = (ServerService) registry.lookup("rmi://localhost:127.0.0.1/principalServer");

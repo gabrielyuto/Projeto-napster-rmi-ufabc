@@ -3,14 +3,12 @@ package org.example.src.thread;
 import org.example.src.bean.FileMessage;
 import org.example.src.client.Client;
 
-import javax.swing.*;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
+// CRIA UMA THREAD PARA CADA CLIENTE
+// -> O objetivo é criar um servidor para cada cliente, que escuta todas as requisiçẽs de solicitação de arquivos
 public class ListenerThread extends Thread {
     private Socket socket = null;
     private int port;
@@ -24,9 +22,8 @@ public class ListenerThread extends Thread {
             ServerSocket serverSocket = new ServerSocket(port);
 
             while(true){
-                System.out.println("Client server awaiting connection...");
+                // Aguarda a solicitacao de download de um arquivo
                 Socket socket = serverSocket.accept(); //BLOCKING
-                System.out.println("Connection accepted!");
 
                 System.out.println("Client " + socket.getInetAddress().getHostAddress() + " connected");
 
@@ -35,6 +32,7 @@ public class ListenerThread extends Thread {
 
                 System.out.println("The client is requesting the file: " + clientArrived.getFile_request());
 
+                // Busca pelo arquivo atraves do método send implementado, e devolve para o cliente.
                 FileMessage message = send(clientArrived.getDestiny_path_files(), clientArrived.getFile_request());
 
                 ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
@@ -53,37 +51,11 @@ public class ListenerThread extends Thread {
 
         FileMessage fileMessage = new FileMessage(file);
 
+        if(fileMessage == null){
+            System.out.println("File not found");
+            return null;
+        }
+
         return fileMessage;
-
-
-//        byte[] fileDeserialized = new byte[0];
-//
-//        if (Files.isDirectory(directory) && Files.exists(file)) {
-//            try {
-//                fileDeserialized = Files.readAllBytes(file);
-//
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        } else {
-//            System.out.println("Diretorio nao existe");
-//        }
-//
-//        return fileDeserialized;
     }
 }
-
-//
-//    JFileChooser fileChooser = new JFileChooser();
-//    File file = fileChooser.getSelectedFile();
-//
-//
-//    int opt = fileChooser.showOpenDialog(null);
-//
-//        if(opt == JFileChooser.APPROVE_OPTION){
-//                File file = fileChooser.getSelectedFile();
-//                FileMessage fileMessage = new FileMessage(file);
-//
-//                return fileMessage;
-//                }
-//                return null;
